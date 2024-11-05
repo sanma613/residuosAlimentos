@@ -1,5 +1,5 @@
-# sistema_donaciones.py
-
+import random
+from flask import Flask, jsonify
 from errors import (
     SistemaOperativoError,
     AlimentoNoEncontradoError,
@@ -7,7 +7,6 @@ from errors import (
     CarritoVacioError,
     AlimentosNoSeleccionadosError,
 )
-import random
 
 
 # Clase Usuario
@@ -41,7 +40,7 @@ class Receptor(Usuario):
     def agregar_a_carrito(self, alimento, cantidad):
         if cantidad > alimento.unidades_disponibles:
             raise UnidadesInsuficientesError(
-                f"No hay suficientes unidades de '{alimento.nombre}'. Disponibles: {alimento.unidades_disponibles}"
+                f"No hay suficientes unidades de '{alimento.nombre}'. Disponibles: {alimento.unidades_disponibles}."
             )
         alimento.unidades_disponibles -= cantidad
         self.carrito.append((alimento, cantidad))
@@ -70,7 +69,7 @@ class Alimento:
         self.descripcion = descripcion
         self.unidades_disponibles = unidades_disponibles
         self.tag = tag
-        self.donante = donante
+        self.donante = donante  # Añadimos referencia al donante
 
 
 # Clase SistemaDonaciones
@@ -189,3 +188,53 @@ class SistemaDonaciones:
                 "Solo los receptores pueden finalizar adquisiciones."
             )
         self.usuario_actual.finalizar_adquisiciones()
+
+    def generar_recomendaciones(self):
+        if not isinstance(self.usuario_actual, Receptor):
+            raise SistemaOperativoError(
+                "Solo los receptores pueden ver recomendaciones."
+            )
+        if not self.usuario_actual.historial_adquisiciones:
+            print("No hay historial de adquisiciones para generar recomendaciones.")
+            return []
+        recomendaciones = random.sample(self.alimentos, min(3, len(self.alimentos)))
+        return recomendaciones
+
+    def ver_donante_destacado(self):
+        if not isinstance(self.usuario_actual, Receptor) or not self.donantes:
+            print("No hay donantes registrados.")
+            return
+        # Elegimos un donante aleatorio para destacar
+        donante_destacado = random.choice(self.donantes)
+        print(
+            f"Donante Destacado: {donante_destacado.nombre} - {donante_destacado.contacto}"
+        )
+        if donante_destacado.alimentos:
+            print("Alimentos disponibles de este donante:")
+            for alimento in donante_destacado.alimentos:
+                print(
+                    f"- {alimento.nombre} (Disponibles: {alimento.unidades_disponibles})"
+                )
+        else:
+            print("Este donante no tiene alimentos disponibles.")
+
+
+# Clase para la API
+class SistemaDonacionesAPI:
+    def __init__(self, sistema_donaciones):
+        self.app = Flask(__name__)
+        self.sistema = sistema_donaciones
+
+    def run(self):
+        @self.app.route("/recomendaciones", methods=["GET"])
+        def get_recomendaciones():
+            try:
+                recomendaciones = self.sistema.generar_recomendaciones()
+                if recomendaciones:
+                    return (
+                        jsonify([alimento.nombre for alimento in recomendaciones]),
+                        200,
+                    )
+                return jsonify([]), 200
+            except SistemaOperativoError as e:
+                return jsonify({"error": str(e)}), 400
