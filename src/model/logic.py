@@ -1,6 +1,6 @@
 import random
 from flask import Flask, jsonify
-from errors import (
+from model.errors import (
     SistemaOperativoError,
     AlimentoNoEncontradoError,
     UnidadesInsuficientesError,

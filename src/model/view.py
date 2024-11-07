@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
-from main import SistemaDonaciones, Donante, Receptor
-from errors import (
+from model.logic import SistemaDonaciones, Donante, Receptor
+from model.errors import (
     SistemaOperativoError,
     AlimentoNoEncontradoError,
     UnidadesInsuficientesError,
@@ -371,9 +371,3 @@ class App:
     def clear_frame(self):
         for widget in self.main_frame.winfo_children():
             widget.destroy()
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = App(root)
-    root.mainloop()
