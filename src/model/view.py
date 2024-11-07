@@ -170,7 +170,7 @@ class App:
                 self.main_frame, text="Buscar Alimentos", command=self.search_food
             ).pack(pady=5)
             tk.Button(
-                self.main_frame, text="Filtrar Alimentos", command=self.filter_food
+                self.main_frame, text="Filtrar Alimentos", command=self.search_food
             ).pack(pady=5)
             tk.Button(self.main_frame, text="Ver Carrito", command=self.view_cart).pack(
                 pady=5
@@ -190,7 +190,7 @@ class App:
             tk.Button(
                 self.main_frame,
                 text="Obtener Recomendaciones",
-                command=self.get_recommendations,
+                command=self.sistema.generar_recomendaciones(),
             ).pack(pady=5)
 
         tk.Button(self.main_frame, text="Cerrar Sesión", command=self.logout).pack(
@@ -262,7 +262,7 @@ class App:
         def search():
             tag = tag_entry.get()
             try:
-                results = self.sistema.buscar_alimentos_por_tag(tag)
+                results = self.sistema.buscar_alimento(tag)
                 self.clear_frame()
                 tk.Label(
                     self.main_frame, text="Resultados de búsqueda:", font=("Arial", 14)
@@ -340,7 +340,7 @@ class App:
         tk.Label(
             self.main_frame, text="Historial de Adquisiciones", font=("Arial", 14)
         ).pack(pady=10)
-        acquisitions = self.sistema.obtener_historial_adquisiciones()
+        acquisitions = self.sistema.ver_historial_adquisiciones()
         for acquisition in acquisitions:
             tk.Label(self.main_frame, text=str(acquisition)).pack(pady=2)
         tk.Button(self.main_frame, text="Volver", command=self.user_dashboard).pack(

@@ -71,6 +71,9 @@ class Alimento:
         self.tag = tag
         self.donante = donante  # Añadimos referencia al donante
 
+    def __str__(self):
+        return f"{self.nombre} - {self.unidades_disponibles} unidades disponibles"
+
 
 # Clase SistemaDonaciones
 class SistemaDonaciones:
@@ -121,7 +124,7 @@ class SistemaDonaciones:
 
     def buscar_alimento(self, nombre_alimento):
         resultados = [
-            alimento
+            alimento.__str__()
             for alimento in self.alimentos
             if nombre_alimento.lower() in alimento.nombre.lower()
         ]
@@ -231,10 +234,8 @@ class SistemaDonacionesAPI:
             try:
                 recomendaciones = self.sistema.generar_recomendaciones()
                 if recomendaciones:
-                    return (
-                        jsonify([alimento.nombre for alimento in recomendaciones]),
-                        200,
-                    )
+                    data = [alimento.nombre for alimento in recomendaciones]
+                    return jsonify(data), 200
                 return jsonify([]), 200
             except SistemaOperativoError as e:
                 return jsonify({"error": str(e)}), 400
